@@ -1,38 +1,49 @@
 <?php
-        
-    include "/home/soc_lsucs/lan.lsucs.org.uk/password.php";
+
+    /**
+     * Database Settings
+     */
+    define("DB_HOST", "localhost");
+    define("DB_USER", "lanwebsite");
+    define("DB_PASS", "dbp4ssw0rd");
+    define("DB_DB", "lanwebsite");
     
     /**
      * Base LanWebsite Library Directory
      */
-    $config['libdir'] = "/home/soc_lsucs/lan.lsucs.org.uk/htdocs/lib/";
-    
-    /**
-     * Database Settings
-     */
-    $config['database']["host"] = "localhost";
-    $config['database']["user"] = "lanwebsite";
-    $config['database']["pass"] = $password;
-    $config['database']["db"]   = "lanwebsite";
+    define("LIB_DIR", "/home/lanwebsite/htdocs/lib/");
     
     /**
      * Default Controller location
      */
-    $config['controllerdir'] = '/public/controllers/';
+    define("CONTROLLER_DIR", "/public/controllers/");
     
     /**
      * Auth Mechanism
      */
-    $config['auth'] = "LanWebsite_Auth_Lsucs";
+    define("AUTH_SYS", "LanWebsite_Auth_Default");
 
     /**
      * UserManager
      */
-    $config['usermanager'] = "LanWebsite_UserManager_Lsucs";
+    define("USER_SYS", "LanWebsite_UserManager_Default");
     
     /**
      * SEO-friendly URLs
      */
-    $config['seo_enabled'] = true;
+    define("USE_SEO", true);
+    
+    /**
+     * Cookie Config
+     * Note: Use leading '.' to signify multiple subdomains
+     */
+    define("COOKIE_HOST", "lanwebsite.michaelfiford.me");
+    
+    /**
+     * Site Salt
+     * DO NOT CHANGE after accounts have been created
+     */
+    define("SITE_SALT", "*Sh._s3jllp!X\"sd\\1");
+    
 
 ?>

@@ -6,7 +6,7 @@
         
         private static $controllerdir = '';
 		
-		private static $db;
+	private static $db;
         private static $settings;
         private static $auth;
         private static $usermanager;
@@ -16,25 +16,22 @@
         /**
          * Loads base dependencies for LAN website core
          */
-		public static function initialize() {
-        
-            include '/home/soc_lsucs/lan.lsucs.org.uk/htdocs/logger.php';
+        public static function initialize() {
 		
             //Initiation check
             if (self::$init == true) return false;
             self::$init = true;
-    
-            //Load base config
-            $config = self::getConfig();
             
             //Load controller location
-            self::$controllerdir = $config['controllerdir'];            
+            self::$controllerdir = CONTROLLER_DIR;
 			
             //Load base objects
 			self::$db       = new LanWebsite_Db();
             self::$settings = new LanWebsite_Settings();
-            self::$auth     = new $config['auth'];
-            self::$usermanager = new $config['usermanager'];
+            $auth = AUTH_SYS;
+            self::$auth     = new $auth;
+            $user = USER_SYS;
+            self::$usermanager = new $user;
             self::$templatemanager = new LanWebsite_TemplateManager();
             
             //Init auth
@@ -97,22 +94,12 @@
         
         
         /**
-         *  Get Base Config
-         */
-        public static function getConfig() {
-            include dirname(__FILE__) . '/../../config.php';
-            return $config;
-        }
-        
-        
-        /**
          *  Url Builder
          */
         public static function buildUrl($admin, $controller = null, $action = null, $args = array()) {
             
             //SEO-friendly URLs?
-            include 'config.php';
-            if ($config['seo_enabled']) {
+            if (USE_SEO) {
                 
                 //Routing engine
                 if ($admin) $url = "/admin/";

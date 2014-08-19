@@ -3,7 +3,8 @@
     error_reporting(E_ALL);
     setlocale(LC_MONETARY, 'en_GB');
 
-    include 'lib/LanWebsite/Autoload.php';
+    require(dirname(__FILE__) . DIRECTORY_SEPARATOR . "config.php");
+    require(implode(array(dirname(__FILE__), "lib", "LanWebsite", "Autoload.php"), DIRECTORY_SEPARATOR));
     
     LanWebsite_Main::initialize();
     

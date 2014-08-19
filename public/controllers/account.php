@@ -4,19 +4,20 @@ class Account_Controller extends LanWebsite_Controller {
     
     public function getInputFilters($action) {
         switch ($action) {
-            case "login": return array("username" => ""); break;
-            case "authlogin": return array("username" => "notnull", "password" => "notnull"); break;
-            case "editvandetails": return array("phone" => array("notnull", "phone"), "address" => "notnull", "postcode" => "notnull", "collection" => "", "dropoff" => "", "availability" => "notnull"); break;
-            case "editgamedetails": return array("steam" => "", "currently_playing" => "", "favourite_games" => "post"); break;
-            case "suggestgame": return array("term" => "notnull"); break;
-            case "assignticket": return array("name" => "notnull", "ticket_id" => "notnull"); break;
-            case "autocomplete": return array("term" => "notnull"); break;
-            case "claimticket": return array("code" => "notnull", "email" => array("notnull", "email")); break;
-            case "editaccountdetails": return array("name" => "notnull", "emergency_contact_name" => "notnull", "emergency_contact_number" => "notnull"); break;
+            case "login": return array("username" => "");
+            case "authlogin": return array("username" => "notnull", "password" => "notnull");
+            case "editvandetails": return array("phone" => array("notnull", "phone"), "address" => "notnull", "postcode" => "notnull", "collection" => "", "dropoff" => "", "availability" => "notnull");
+            case "editgamedetails": return array("steam" => "", "currently_playing" => "", "favourite_games" => "post");
+            case "suggestgame": return array("term" => "notnull");
+            case "assignticket": return array("name" => "notnull", "ticket_id" => "notnull");
+            case "autocomplete": return array("term" => "notnull");
+            case "claimticket": return array("code" => "notnull", "email" => array("notnull", "email"));
+            case "editaccountdetails": return array("name" => "notnull", "emergency_contact_name" => "notnull", "emergency_contact_number" => "notnull");
             case "joingroup":
             case "leavegroup":
             case "creategroup": return array("groupid" => "notnull");
             case "updatepreference": return array("groupid" => "notnull", "preference"=>"");
+            case "createaccount": return array("username" => "notnull", "password" => "notnull", "email" => array("notnull", "email"));
         }
     }
  
@@ -27,6 +28,28 @@ class Account_Controller extends LanWebsite_Controller {
 		$tmpl->setSubTitle("Account Details");
         $tmpl->addTemplate('account', $data);
         $tmpl->output();
+    }
+    
+    public function get_Create() {
+        LanWebsite_Main::getAuth()->requireNotLoggedIn();
+        $tmpl = LanWebsite_Main::getTemplateManager();
+		$tmpl->setSubTitle("Create Account");
+        $tmpl->addTemplate('account_create');
+        $tmpl->output();
+    }
+    
+    public function post_Createaccount($inputs) {
+        LanWebsite_Main::getAuth()->requireNotLoggedIn();
+        
+        if ($this->isInvalid('username')) $this->errorJSON("Please supply a username");
+        if ($this->isInvalid('password')) $this->errorJSON("Please supply a password");
+        if ($this->isInvalid('email')) $this->errorJSON("Invalid email");
+        
+        if(LanWebsite_Main::getUserManager()->createAccount($inputs['username'], $inputs['password'], $inputs['email'])) {
+            $this->login($inputs['username'], $inputs['password']);
+        } else {
+            $this->errorJSOn("An error occured");
+        }
     }
     
     public function get_Date() {
@@ -354,7 +377,11 @@ class Account_Controller extends LanWebsite_Controller {
         if ($this->isInvalid("username")) $this->error("Please enter your Username");
         if ($this->isInvalid("password")) $this->error("Please enter your Password");
         
-        $error = LanWebsite_Main::getAuth()->login($inputs["username"], $inputs["password"]);
+        $this->login($inputs["username"], $inputs["password"]);
+    }
+    
+    private function login($username, $password) {
+        $error = LanWebsite_Main::getAuth()->login($username, $password);
         if ($error === true) {
             header("Location:" . LanWebsite_Main::buildUrl(false));
         } else {
