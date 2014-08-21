@@ -114,7 +114,7 @@
             $user = new LanWebsite_User();
             $user->setUserId($userData['id']);
             $user->setUsername($userData['username']);
-            $user->setFullName($userData['real_name']);
+            $user->setFullName($data['real_name']);
             $user->setEmail($userData['email']);
             $user->setAvatar($userData['avatar']);
             $user->setSteam($data['steam_name']);
