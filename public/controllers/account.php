@@ -46,7 +46,7 @@ class Account_Controller extends LanWebsite_Controller {
         if ($this->isInvalid('email')) $this->errorJSON("Invalid email");
         
         if(LanWebsite_Main::getUserManager()->createAccount($inputs['username'], $inputs['password'], $inputs['email'])) {
-            $this->login($inputs['username'], $inputs['password']);
+            $this->login($inputs);
         } else {
             $this->errorJSOn("An error occured");
         }
@@ -377,11 +377,11 @@ class Account_Controller extends LanWebsite_Controller {
         if ($this->isInvalid("username")) $this->error("Please enter your Username");
         if ($this->isInvalid("password")) $this->error("Please enter your Password");
         
-        $this->login($inputs["username"], $inputs["password"]);
+        $this->login($inputs);
     }
     
-    private function login($username, $password) {
-        $error = LanWebsite_Main::getAuth()->login($username, $password);
+    private function login($inputs) {
+        $error = LanWebsite_Main::getAuth()->login($inputs["username"], $inputs["password"]);
         if ($error === true) {
             header("Location:" . LanWebsite_Main::buildUrl(false));
         } else {
