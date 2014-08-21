@@ -9,6 +9,8 @@
         }
     
         public function get_Index() {
+            if(!ENABLE_MAP) $this->error("This feature is disabled");
+            
             $tmpl = LanWebsite_Main::getTemplateManager();
 			$tmpl->setSubTitle("Lan Map");
             $tmpl->addTemplate('map');
@@ -16,6 +18,8 @@
         }
         
         public function get_Load() {
+            
+            if(!ENABLE_MAP) $this->errorJSON("This feature is disabled");
             
             $res = LanWebsite_Main::getDb()->query("SELECT * FROM `map_cache`");
             $return["data"] = array();
@@ -27,6 +31,8 @@
         }
         
         function get_Processseat($inputs) {
+            
+            if(!ENABLE_MAP) return;
         
             //Ticket
             $ticket = LanWebsite_Main::getDb()->query("SELECT * FROM `tickets` WHERE lan_number = '%s' AND  ticket_id = '%s'", LanWebsite_Main::getSettings()->getSetting("lan_number"), $inputs["ticket"])->fetch_assoc();

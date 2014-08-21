@@ -1,6 +1,8 @@
 <?php
+
+require(dirname(dirname(dirname(__FILE__))) . DIRECTORY_SEPARATOR . "config.php");
 	
-	class LanWebsite_Main {
+class LanWebsite_Main {
 		
         private static $init = false;
         
@@ -18,6 +20,8 @@
          */
         public static function initialize() {
 		
+            require(dirname(dirname(dirname(__FILE__))) . DIRECTORY_SEPARATOR . "logger.php");
+        
             //Initiation check
             if (self::$init == true) return false;
             self::$init = true;
@@ -26,10 +30,10 @@
             self::$controllerdir = CONTROLLER_DIR;
 			
             //Load base objects
-			self::$db       = new LanWebsite_Db();
+			self::$db = new LanWebsite_Db();
             self::$settings = new LanWebsite_Settings();
             $auth = AUTH_SYS;
-            self::$auth     = new $auth;
+            self::$auth = new $auth;
             $user = USER_SYS;
             self::$usermanager = new $user;
             self::$templatemanager = new LanWebsite_TemplateManager();

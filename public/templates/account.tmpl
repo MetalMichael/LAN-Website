@@ -62,7 +62,9 @@
 </div>
 <hr />
 
-
+<?php
+if(ENABLE_LANVAN) {
+?>
 <div id="lan-van">
     <a id="lanvan"></a>
     <h1>lan van</h1>
@@ -132,6 +134,9 @@
 </div>
 <hr />
 
+<?php
+}
+?>
 
 <div id="tickets">
     <a id="tickets"></a>
@@ -158,8 +163,11 @@
     </div>
     
 </div>
-<hr />
 
+<?php
+if(ENABLE_SEATBOOKING) {
+?>
+<hr />
 <div id="seatbooking">
     <a id="seatbooking"></a>
 
@@ -197,3 +205,6 @@
     </div>
         
 </div>
+<?php
+}
+?>

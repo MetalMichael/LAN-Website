@@ -53,15 +53,6 @@
 			$tmpl->output();
         }
         
-        public function get_Howmanylanticketshavesoldsofar() {
-            list($total) = LanWebsite_Main::getDb()->query("SELECT COUNT(*) FROM tickets WHERE lan_number = '%s'", LanWebsite_Main::getSettings()->getSetting("lan_number"))->fetch_row();
-            
-            $tmpl = LanWebsite_Main::getTemplateManager();
-			$tmpl->setSubTitle("Total Tickets");
-            $tmpl->addTemplate('tickets-total', $total);
-			$tmpl->output();
-        }
-        
         public function post_Complete($inputs) {
             LanWebsite_Main::getAuth()->requireLogin();
             $data["pending_id"] = $inputs["custom"];
@@ -139,34 +130,13 @@
             
         }
         
-        private function checkAvailability($memberTickets = 1, $nonMemberTickets = 0) {
-            /********************/
-            // CHECK AVAILABILITY
-            /********************/
-            $fields = array("api_key" => LanWebsite_Main::getSettings()->getSetting("api_key"),
-                            "lan" => LanWebsite_Main::getSettings()->getSetting("lan_number"));   
-            $fields_string = "";
-            foreach($fields as $key=>$value) $fields_string .= $key.'='.$value.'&';
-            rtrim($fields_string, '&');
-            
-            //Set up cURL and request                       
-            $ch = curl_init();
-            curl_setopt($ch, CURLOPT_URL, LanWebsite_Main::getSettings()->getSetting("receipt_api_availability_url"));
-            curl_setopt($ch, CURLOPT_POST, count($fields));
-            curl_setopt($ch, CURLOPT_POSTFIELDS, $fields_string);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-            $result = json_decode(curl_exec($ch), true);
-            
-            //If error
-            if(isset($result["error"])) {
-                $this->errorJSON($result["error"]);
-            } else if(!isset($result["availability"])) {
-                $this->errorJSON($result);
-            }
+        //Ensures there are as many tickets as required. Errors if not
+        private function ensureAvailability($memberTickets = 1, $nonMemberTickets = 0) {
+            $tickets = $this->checkAvailablility();
             
             //If no tickets available, set tickets available to false and abort
-            if($result["availability"] < $memberTickets + $nonMemberTickets) {
-                if($result["availability"] == 0) {
+            if($tickets < $memberTickets + $nonMemberTickets) {
+                if($tickets == 0) {
                     LanWebsite_Main::getSettings()->changeSetting("member_ticket_available", false);
                     LanWebsite_Main::getSettings()->changeSetting("nonmember_ticket_available", false);
                     $this->errorJSON("Tickets are now sold out for LAN" . LanWebsite_Main::getSettings()->getSetting("lan_number"));
@@ -176,34 +146,50 @@
             }
         }
         
-        private function issueReceipt($userID, $memberAmount, $nonmemberAmount) {
-            $lanuser = lanWebsite_Main::getUserManager()->getUserById($userID);
-            $fields = array("api_key" => LanWebsite_Main::getSettings()->getSetting("api_key"),
-                            "lan" => LanWebsite_Main::getSettings()->getSetting("lan_number"),
-                            "member_amount" => $memberAmount,
-                            "nonmember_amount" => $nonmemberAmount,
-                            "name" => $lanuser->getFullName(),
-                            "email" => $lanuser->getEmail(),
-                            "customer_forum_name" => $lanuser->getUsername(),
-                            "student_id" => "");   
-            $fields_string = "";
-            foreach($fields as $key=>$value) $fields_string .= $key.'='.$value.'&';
-            rtrim($fields_string, '&');
+        //Returns number of tickets available
+        private function checkAvailablility() {
+            $capacity = LanWebsite_Main::getSettings()->getSetting("lan_capacity");
             
-            //Set up cURL and request                       
-            $ch = curl_init();
-            curl_setopt($ch,CURLOPT_URL, LanWebsite_Main::getSettings()->getSetting("receipt_api_issue_url"));
-            curl_setopt($ch,CURLOPT_POST, count($fields));
-            curl_setopt($ch,CURLOPT_POSTFIELDS, $fields_string);
-            curl_setopt($ch,CURLOPT_RETURNTRANSFER, 1);
-            $result = json_decode(curl_exec($ch), true);
+            list($totalSold) = LanWebsite_Main::getDb()->query("SELECT COUNT(*) FROM tickets WHERE lan_number = '%s'", LanWebsite_Main::getSettings()->getSetting("lan_number"))->fetch_row();
             
-            //Error
-            if(isset($result["error"])) {
-                $this->error_log("Unable to issue receipt: " . $result["error"] . "\n");
-            } else if(!isset($result["success"])) {
-                $this->error_log("Unable to issue receipt: " . print_r($result, true) . "\n");
+            return $capacity - $totalSold;
+        }
+        
+        private function issueReceipt($userID, $memberAmount, $nonmemberAmount, $purchaseID) {
+            /*
+                Optional code to issue receipt goes here
+                (was used to interface with an external website)
+            */
+            $lanNumber = LanWebsite_Main::getSettings("lan_number");
+            $customer = LanWebsite_Main::getAuth()->getActiveUserId();
+            $customerID = $customer->getUserId();
+            for($i = 1; $i <= $memberAmount + $nonmemberAmount; $i++) {
+            
+                $memberTicket = !($i > $memberAmount);
+        
+                //Check if user is member
+                $member = $customer->isMember();
+
+                //Work out who to assign ticket to, if anyone
+                $assignID = "";
+                $prevTicket = LanWebsite_Main::getDb()->query("SELECT * FROM `tickets` WHERE assigned_forum_id = '%s' AND lan_number = '%s'", $customerID, $lanNumber)->fetch_assoc();
+                //If purchasing member ticket and user has non-member assigned, unassign that one and assign the new one
+                if ($prevTicket && $member && $prevTicket["member_ticket"] == 0 && $memberTicket) {
+                    LanWebsite_Main::getDb()->query("UPDATE `tickets` SET assigned_forum_id = '' WHERE ticket_id = '%s'", $prevTicket["ticket_id"]);
+                    $assignID = $customerID;
+                }
+                //No previous ticket so assign anyway
+                else if (!$prevTicket) {
+                    $assignID = $customerID;
+                }
+                
+                //Insert time
+                LanWebsite_Main::getDb()->query("INSERT INTO `tickets` (purchase_id, lan_number, member_ticket, purchased_forum_id, purchased_name, assigned_forum_id) VALUES ('%s', '%s', '%s', '%s', '%s', '%s')",
+                    $purchaseID, $lanNumber, $memberTicket, $customerID, $customer->getFullName(), $assignID);
+            
             }
+        
+            
         }
         
         public function post_Ipn() {
@@ -282,38 +268,28 @@
                     $errmsg .= "Non-member attempting to purchase member tickets";
                 }
                 
-                /********************/
-                // CHECK AVAILABILITY
-                /********************/
-                $fields = array("api_key" => LanWebsite_Main::getSettings()->getSetting("api_key"),
-                                "lan" => LanWebsite_Main::getSettings()->getSetting("lan_number"));   
-                $fields_string = "";
-                foreach($fields as $key=>$value) $fields_string .= $key.'='.$value.'&';
-                rtrim($fields_string, '&');
-                
-                //Set up cURL and request                       
-                $ch = curl_init();
-                curl_setopt($ch,CURLOPT_URL, LanWebsite_Main::getSettings()->getSetting("receipt_api_availability_url"));
-                curl_setopt($ch,CURLOPT_POST, count($fields));
-                curl_setopt($ch,CURLOPT_POSTFIELDS, $fields_string);
-                curl_setopt($ch,CURLOPT_RETURNTRANSFER, 1);
-                $result = json_decode(curl_exec($ch), true);
-                
                 //If no tickets available, set tickets available to false and abort
-                if(isset($result["availability"]) && $result["availability"] < $memberAmount + $nonmemberAmount) {
-                    if($result["availability"] == 0) {
+                $tickets = $this->checkAvailability($memberAmount, $nonmemberAmount);
+                if($tickets < $memberAmount + $memberAmount) {
+                    if($tickets == 0) {
                         LanWebsite_Main::getSettings()->changeSetting("member_ticket_available", false);
                         LanWebsite_Main::getSettings()->changeSetting("nonmember_ticket_available", false);
                         $errmsg = "Tickets sold out for LAN" . LanWebsite_Main::getSettings()->getSetting("lan_number");
                     } else {
-                        $errmsg = "Only " . $result["availability"] . " ticket(s) available for LAN" . LanWebsite_Main::getSettings()->getSetting("lan_number");
+                        $errmsg = "Only " . $tickets . " ticket(s) available for LAN" . LanWebsite_Main::getSettings()->getSetting("lan_number");
                     }
                 }
                 
                 if(empty($errmsg)) {
-                    $this->issueReceipt($pending_purchase["user_id"], $memberAmount, $nonmemberAmount);
+                    $this->issueReceipt($pending_purchase["user_id"], $memberAmount, $nonmemberAmount, $pending_purchase["pending_purchase_id"]);
+
+                    /********************/
+                    // GOOD TO GO
+                    /********************/
+                    //If we get here, we are good to say the purchase was completely valid
+                    LanWebsite_Main::getDb()->query("INSERT INTO `paypal_purchases` (old_pending_purchase_id, txn_id, payer_email, user_id) VALUES ('%s', '%s', '%s', '%s')", $pending_purchase["pending_purchase_id"], $_POST["txn_id"], $_POST["payer_email"], $pending_purchase["user_id"]);
+                    LanWebsite_Main::getDb()->query("DELETE FROM `pending_purchases` WHERE pending_purchase_id = '%s'", $pending_purchase["pending_purchase_id"]);
                 }
-                
                 
                 /********************/
                 // ERROR
@@ -325,7 +301,7 @@
                     
                     //Send fraud email to committee
                     $email = new LanWebsite_EmailWrapper();
-                    $email->setTo("committee@lsucs.org.uk");
+                    $email->setTo(LanWebsite_Main::getSettings()->getSetting("site-email-error"));
                     $email->setSubject("IPN Fraud Warning");
                     $email->setBody("IPN FAILED FRAUD CHECKS: \n" . $errmsg . "\n\n\n" . $listener->getTextReport());
                     $email->getMessage()->setContentType("text/plain");
@@ -336,13 +312,6 @@
                     
                     return;
                 }
-                
-                /********************/
-                // GOOD TO GO
-                /********************/
-                //If we get here, we are good to say the purchase was completely valid
-                LanWebsite_Main::getDb()->query("INSERT INTO `paypal_purchases` (old_pending_purchase_id, txn_id, payer_email, user_id) VALUES ('%s', '%s', '%s', '%s')", $pending_purchase["pending_purchase_id"], $_POST["txn_id"], $_POST["payer_email"], $pending_purchase["user_id"]);
-                LanWebsite_Main::getDb()->query("DELETE FROM `pending_purchases` WHERE pending_purchase_id = '%s'", $pending_purchase["pending_purchase_id"]);
                 
             } else {
                 $this->error_log("INVALID IPN:: " . $listener->getTextReport());

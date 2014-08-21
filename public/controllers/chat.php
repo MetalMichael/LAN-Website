@@ -7,6 +7,8 @@
 		
 		public function get_Getdetails() {
         
+            if(!ENABLE_CHAT) echo json_encode(array("disabled" => true));
+        
 			//Check if chat is enabled
             //$res = LanWebsite_Main::getDb()->query("SELECT * FROM `tickets` WHERE lan_number = '%s' AND activated = 1 AND assigned_forum_id = '%s'", LanWebsite_Main::getSettings()->getSetting("lan_number"), LanWebsite_Main::getUserManager()->getActiveUser()->getUserId())->fetch_assoc();
             $res = LanWebsite_Main::getDb()->query("SELECT * FROM `tickets` WHERE assigned_forum_id = '%s'", LanWebsite_Main::getUserManager()->getActiveUser()->getUserId())->fetch_assoc();

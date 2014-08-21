@@ -139,7 +139,7 @@
                 $templates[] = array("template" => 'templates/core_header.tmpl', "data" => $data);
             }
             if ($this->include_main) {
-                $data['title'] = ucwords($this->subtitle) . " | LSUCS LAN" . LanWebsite_Main::getSettings()->getSetting("lan_number");
+                $data['title'] = ucwords($this->subtitle) . " | " . SITE_NAME . " LAN" . LanWebsite_Main::getSettings()->getSetting("lan_number");
                 $data['refresh'] = $this->refresh;
                 $templates[] = array("template" => 'templates/header.tmpl', "data" => $data);
             }

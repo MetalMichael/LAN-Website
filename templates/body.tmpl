@@ -18,14 +18,20 @@
         <div id="navbar-container">
             <div id="navbar">
                 <ul>
-                    <li class="nav-left nav-logo"><a href="http://lsucs.org.uk">lsu<b>cs</b></a></li>
+                    <li class="nav-left nav-logo"><a href="<?=SITE_URL?>"><?=SITE_NAME?></a></li>
                     <li class="nav-left nav-divider"></li>
                     <li class="nav-left"><a href="<?=LanWebsite_Main::buildUrl(false)?>">Home</a></li>
                     <li class="nav-left info"><a href="<?=LanWebsite_Main::buildUrl(false, "info")?>">Essential Info</a></li>
                     <li class="nav-left"><a href="<?=LanWebsite_Main::buildUrl(false, "tickets")?>">Tickets</a></li>
                     <li class="nav-left"><a href="<?=LanWebsite_Main::buildUrl(false, "whatson")?>">What's On</a></li>
                     <li class="nav-left"><a href="<?=LanWebsite_Main::buildUrl(false, "contact")?>">Contact</a></li>
-                    <li class="nav-left"><a href="http://lsucs.org.uk">Forums</a></li>
+                    <?php
+                    if(defined("URL_FORUMS")) {
+                    ?>
+                        <li class="nav-left"><a href="<?=URL_FORUMS?>">Forums</a></li>
+                    <?php
+                    }
+                    ?>
                     
                     <?php if ($DataBag["loggedin"]) { ?>
                         <a href="<?=LanWebsite_Main::buildUrl(false, "account", "logout")?>" title="Logout"><li class="nav-right logout"></li></a>
@@ -61,13 +67,18 @@
                             What to Bring
                         </div>
                     </a>
-                    
+                    <?php
+                    if(ENABLE_LANVAN) {
+                    ?>
                     <a href="<?=LanWebsite_Main::buildUrl(false, "info", "lanvan")?>">
                         <div class="info-element">
                             <img id="van" class="info-image" src="/images/info/van.png" />
                             LAN Van
                         </div>
                     </a>
+                    <?php
+                    }
+                    ?>
                     
                     <a href="<?=LanWebsite_Main::buildUrl(false, "info", "parking")?>">
                         <div class="info-element">
@@ -179,8 +190,18 @@
         <div style="clear: both;"></div>
         
         <ul class="subtabs lantabs">
+            <?php
+            if(ENABLE_GAMEHUB) {
+            ?>
             <li><a href="<?=LanWebsite_Main::buildUrl(false, "gamehub")?>"><img src="/images/accessbar/servers.png" />Game Hub</a></li>
-            <li><a href="<?=LanWebsite_Main::buildUrl(false, "map")?>"><img src="/images/accessbar/map.png" />Live Map</a></li>
+            <?php
+            }
+            if(ENABLE_MAP) {
+            ?>
+                <li><a href="<?=LanWebsite_Main::buildUrl(false, "map")?>"><img src="/images/accessbar/map.png" />Live Map</a></li>
+            <?php
+            }
+            ?>
             <li><a href="<?=LanWebsite_Main::buildUrl(false, "tournaments")?>"><img src="/images/accessbar/game.png" />Tournaments</a></li>
             <li><a href="<?=LanWebsite_Main::buildUrl(false, "whatson")?>"><img src="/images/accessbar/timetable.png" />Timetable</a></li>
             <li><a href="<?=LanWebsite_Main::buildUrl(false, "orderfood")?>"><img src="/images/accessbar/pizza.png" />Food</a></li>

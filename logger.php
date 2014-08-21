@@ -43,7 +43,7 @@
         private static function connect() {
             if (self::$db == null) {
                 include(dirname(__FILE__) . '/config.php');
-                self::$db = new mysqli($config["database"]["host"], $config["database"]["user"], $config["database"]["pass"], $config["database"]["db"]);
+                self::$db = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_DB);
                 if (mysqli_connect_errno()) die("Unable to connect to Logging SQL Database: " . mysqli_connect_error());
             }
         }

@@ -60,6 +60,7 @@ class Account_Controller extends LanWebsite_Controller {
     
         LanWebsite_Main::getAuth()->requireLogin();
         
+        if (!ENABLE_LANVAN) $this->errorJSON("This feature is disabled");
         //Check if van is enabled
         if (LanWebsite_Main::getSettings()->getSetting("disable_lan_van")) $this->errorJSON("LAN Van is currently disabled - if you need to change your request, contact a committee member ASAP");
         
@@ -77,6 +78,7 @@ class Account_Controller extends LanWebsite_Controller {
     
         LanWebsite_Main::getAuth()->requireLogin();
         
+        if (!ENABLE_LANVAN) $this->errorJSON("This feature is disabled");
         //Check if van is enabled
         if (LanWebsite_Main::getSettings()->getSetting("disable_lan_van")) $this->errorJSON("LAN Van is currently disabled - if you need to change your request, contact a committee member ASAP");
         
@@ -420,6 +422,8 @@ class Account_Controller extends LanWebsite_Controller {
     public function post_Joingroup($inputs) {
         LanWebsite_Main::getAuth()->requireLogin();
         
+        if(!ENABLE_SEATBOOKING) $this->errorJSON("This feature is disabled");
+        
         if($this->isInvalid("groupid")) $this->errorJson("Invalid Group ID");
         $groupID = $inputs['groupid'];
         
@@ -446,6 +450,8 @@ class Account_Controller extends LanWebsite_Controller {
     public function post_Leavegroup($inputs) {
         LanWebsite_Main::getAuth()->requireLogin();
         
+        if(!ENABLE_SEATBOOKING) $this->errorJSON("This feature is disabled");
+        
         if($this->isInvalid("groupid")) $this->errorJson("Invalid Group ID");
         $groupID = $inputs['groupid'];
         
@@ -468,6 +474,8 @@ class Account_Controller extends LanWebsite_Controller {
     public function post_Updatepreference($inputs) {
         LanWebsite_Main::getAuth()->requireLogin();
         
+        if(!ENABLE_SEATBOOKING) $this->errorJSON("This feature is disabled");
+        
         if($this->isInvalid("groupid")) $this->errorJson("Invalid Group ID");
         $groupID = $inputs['groupid'];
         
@@ -486,6 +494,10 @@ class Account_Controller extends LanWebsite_Controller {
     }
     
     private function cleanUpGroup($groupID) {
+        LanWebsite_Main::getAuth()->requireLogin();
+        
+        if(!ENABLE_SEATBOOKING) $this->errorJSON("This feature is disabled");
+        
         $db = LanWebsite_Main::getDb();
         
         //If the group has no members left, delete it

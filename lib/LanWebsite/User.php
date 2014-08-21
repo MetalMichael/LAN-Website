@@ -7,7 +7,7 @@
 		private $username = 'Guest';
 		private $fullname = 'Guest Account';
 		private $email = '';
-        private $avatar = 'http://lsucs.org.uk/styles/default/xenforo/avatars/avatar_l.png';
+        private $avatar = DEFAULT_AVATAR;
         private $groups = array();
         private $steam = '';
         private $emergency_contact;
@@ -42,6 +42,7 @@
         }
         
         public function getFullName() {
+            if(empty($this->fullname)) return $this->username;
             return $this->fullname;
         }
         public function setFullName($fullname) {
