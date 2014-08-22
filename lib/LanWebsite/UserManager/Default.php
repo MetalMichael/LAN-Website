@@ -59,6 +59,9 @@
         public function createAccount($username, $password, $email) {
             if(empty($username) || empty($password) || empty($email)) return false;
             
+            $r = $db->query("SELECT * FROM users WHERE username LIKE '%s'", $username);
+            if($r->num_rows) $this->errorJson("Sorry, this username is taken!");
+            
             $secret = LanWebsite_Crypt::randomHash();
             $hash = LanWebsite_Crypt::hashPassword($password, $secret);
             

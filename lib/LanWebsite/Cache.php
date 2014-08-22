@@ -6,6 +6,7 @@ class LanWebsite_Cache {
     private static $init = false;
 
     public static function init() {
+        if(!USE_CACHE) return;
         if (self::$init) return;
         self::$server = new Memcached();
         self::$server->addServer('127.0.0.1', 11211);
@@ -17,12 +18,16 @@ class LanWebsite_Cache {
     }
     
     public static function set($group, $elem, $value, $exp=0) {
+        if(!USE_CACHE) return;
+        
         self::init();
         $key = md5($group . '.' . $elem);
         self::$server->set($key, $value, $exp);
     }
     
     public static function get($group, $elem, &$return) {
+        if(!USE_CACHE) return;
+        
         self::init();
         $key = md5($group . '.' . $elem);
         $return = self::$server->get($key);
@@ -30,6 +35,8 @@ class LanWebsite_Cache {
     }
     
     public static function delete($group, $elem) {
+        if(!USE_CACHE) return;
+        
         self::init();
         $key = md5($group . '.' . $elem);
         self::$server->delete($key);

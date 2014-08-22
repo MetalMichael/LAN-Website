@@ -69,6 +69,11 @@
      */
     define("SITE_SALT", "*Sh._s3jllp!X\"sd\\1");
     
+    /**
+     * Use Cache?
+     */
+    define("USE_CACHE", true);
+    
     
     /**
      * SITE FEATURES
