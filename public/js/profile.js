@@ -4,6 +4,8 @@ $(document).ready(function() {
 
 });
 
+var forumBase = "http://lsucs.org.uk/members";
+
 function loadProfile() {
     $("#profile").hide();
     $("#loading").show();
@@ -31,7 +33,7 @@ function loadProfile() {
             if (data.name) $("#name").html(data.name);
             else $("#name").parent().hide();
             
-            $("#username").html('<a href="http://lsucs.org.uk/members/' + data.username + '.' + data.user_id + '/">' + data.username + '</a>');
+            $("#username").html('<a href="' + forumBase + '/' + data.username + '.' + data.user_id + '/">' + data.username + '</a>');
             
             if (data.steam) $("#steam").html('<a href="http://steamcommunity.com/id/' + data.steam + '/"> ' + data.steam + '</a>');
             else $("#steam").parent().hide();

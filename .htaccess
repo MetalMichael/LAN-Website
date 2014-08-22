@@ -1,11 +1,6 @@
 Options +FollowSymLinks  
 RewriteEngine On
 
-#Maintenance
-#RewriteBase /
-#RewriteCond %{REQUEST_URI} !^/maintenance\.html$
-#RewriteRule ^(.*)$ http://lan.lsucs.org.uk/maintenance.html [R=307,L]
-
 #Admin routing
 RewriteCond %{SCRIPT_FILENAME} !-f
 RewriteRule ^admin/?$ admin.php [QSA,L]
@@ -23,6 +18,5 @@ RewriteCond $1 !=admin.php
 RewriteCond %{SCRIPT_FILENAME} !-d  
 RewriteCond %{SCRIPT_FILENAME} !-f
 RewriteRule ^([^/]+)/([^/]+)/?$ index.php?page=$1&action=$2 [QSA,L]
-
 
 ErrorDocument 404 /notfound/

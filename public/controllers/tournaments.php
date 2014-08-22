@@ -177,7 +177,7 @@ class Tournaments_Controller extends LanWebsite_Controller {
         if(array_key_exists('cleared_alerts', $_COOKIE)) $clearedAlerts = unserialize($_COOKIE['cleared_alerts']);
         else $clearedAlerts = array();
         $clearedAlerts[] = $inputs['alert_id'];
-        setcookie('cleared_alerts', serialize($clearedAlerts), time() + 604800, '/', '.lsucs.org.uk');
+        setcookie('cleared_alerts', serialize($clearedAlerts), time() + 604800, '/', COOKIE_HOST);
         echo "cleared";
     }
 }

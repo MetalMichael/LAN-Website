@@ -243,14 +243,16 @@ class Account_Controller extends LanWebsite_Controller {
         
         //Attempt to retrieve
         $unclaimed_ticket = LanWebsite_Main::getDb()->query("SELECT * FROM `unclaimed_tickets` WHERE `key`='%s'", $inputs["code"])->fetch_assoc();
-        if (!$unclaimed_ticket) $this->errorJSON("Invalid code - if this is a mistake, please contact committee@lsucs.org.uk");
+        if (!$unclaimed_ticket) $this->errorJSON("Invalid code - if this is a mistake, please contact " . LanWebsite_Main::getSettings()->getSetting("site_email_contact"));
         
         //Check email
         if ($this->isInvalid("email")) $this->errorJSON("Email provided is not a valid address");
         if (strtolower($inputs["email"]) != strtolower($unclaimed_ticket["email"])) $this->errorJSON("Email address supplied does not match ticket");
         
         //Check member status
-        if ($unclaimed_ticket["member_ticket"] == 1 && !$user->isMember()) $this->errorJSON("Cannot claim Member Ticket on a Non-Member account. If this is a mistake, please contact committee@lsucs.org.uk");
+        if ($unclaimed_ticket["member_ticket"] == 1 && !$user->isMember()) {
+            $this->errorJSON("Cannot claim Member Ticket on a Non-Member account. If this is a mistake, please contact " . LanWebsite_Main::getSettings()->getSetting("site_email_contact"));
+        }
         
         //Work out who to assign ticket to, if anyone
         $assignID = "";

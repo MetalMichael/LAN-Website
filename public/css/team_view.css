@@ -31,7 +31,7 @@
 
 }
 #team-members>span::before{
-	content:url(http://dev.lan.lsucs.org.uk/images/group.png);
+	content:url(/images/group.png);
 	vertical-align: middle;
 	margin-right:5px;
 }

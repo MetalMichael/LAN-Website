@@ -2,6 +2,8 @@ var dropdown_entered = false;
 var infobar_entered = false;
 var PageVars = {};
 
+var forumBase = 'http://lsucs.org.uk/members';
+
 $(document).ready(function() {
 
 	//User dropdown
@@ -139,7 +141,7 @@ var LanContact = {
                 
                 var hover = '<div class="head-box ' + c + '">';
                 hover += '<div class="avatar"><img src="' + data.avatar + '" /></div>';
-                hover += '<div class="main-info"><a href="http://lsucs.org.uk/members/' + data.user_id + '">' + (data.name == ""?data.username:data.name) + '</a><br />';
+                hover += '<div class="main-info"><a href="' + forumBase + '/' + data.user_id + '">' + (data.name == ""?data.username:data.name) + '</a><br />';
                 if (data.ingame == 1) hover += 'In Game<br />' + data.game;
                 else if (data.online == 1) hover += 'At LAN';
                 else hover += 'Offline';
