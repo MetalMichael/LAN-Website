@@ -6,7 +6,6 @@
         private $message;
         private $transport;
         private $mailer;
-        private $config;
         
         public function __construct($parent) {
         

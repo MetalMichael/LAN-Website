@@ -17,7 +17,7 @@
 				
 				//If invalid session or session has expired, clear cookie and set active user to null
 				if (!$session || $session["expires"] < time()) {
-					setcookie('lan_session', '', time() - 3600, '/', $config['cookie']['hostname']);
+					setcookie('lan_session', '', time() - 3600, '/', COOKIE_HOST);
 					$this->activeId = null;
 				}
 				//Else load user object for session
